@@ -1,0 +1,106 @@
+Docker Compose :
+
+A) Version
+1) Services
+2) Networks
+3) Volumes
+
+version: '3'
+services:
+  redis:
+    image: redis
+    networks:
+      - back-end
+    volumes:
+      - "redis-data:/var/lib/redis"
+
+  db:
+    image: postgres:9.4
+    networks:
+        - back-end
+    volumes:
+        - "db-data:/var/lib/postgresql/data"
+
+  vote:
+    image: voting-app
+    ports:
+      - "5000:80"
+    networks:
+        - back-end
+        - front-end
+
+  result:
+    image: result-app
+    ports:
+        - 5001:80
+    networks:
+        - back-end
+        - front-endj
+
+  worker:
+    image: worker-app
+    networks:
+        - back-end
+
+networks:
+  front-end:
+    driver: bridge
+  back-end:
+    driver: bridge
+
+volumes:
+  redis-data:
+  db-data:
+  
+  
+Docker swarm:
+
+	Docker Managers:
+	RAFT - Leader in all Docker Managers
+	Quorum - No of minimum Members pesent in meeting to make meeting valid
+	calculation of Quorum = Total No of Managers+1/2
+	Fault tolereance = N-1/2
+	Docker recommends max 7 mangers should be there in cluster to maintain scalability
+	TO decide master number should be odd like(3,5,7) which will help after network segmentation cluster will run
+	
+Docker Swam:
+	docker swarm init
+	docker swarm join --token (token_id)
+	docker node ls
+	docker swarm leave
+	docker node rm
+	docker swarm join-token manager     --- TO add another node as a manager
+	
+To bring cluster up incase of failure of all mster instances
+	1) To ring up failed master nodes
+	2) TO create new master nodes 		= docker swarm init --force-new-cluster
+	
+
+Docker services:  [ THese commands should run on master instead of worker nodes ]
+	docker service create service_name
+	docker service create nginx
+	
+	docker service ps
+	docker service ls 
+	
+	docker service update service_name --publish-add 5000:50
+
+Create docker service with name nginx
+	docker service create --replicas 2 --name nginx nginx
+	
+To shutdown services on docker-master and populate on slaves instead of master
+ 	docker service update --availability drain docker-master
+	
+	
+	docker service create --replicas 3 --name vote voting-app
+	
+	docker service create --replicas 3 --name vote -p 8080:80 --network front-end voting-app	
+	
+	
+TO add docker replicas from 3 to 6
+	docker service update --replicas 6 service_name
+	
+
+
+
+	docker service update -replicas=6 vote

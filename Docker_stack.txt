@@ -1,0 +1,18 @@
+/var/answersservices:
+  db:
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    image: postgres
+  wordpress:
+    image: wordpress
+    links:
+    - db
+    ports:
+    - 8085:80
+version: '3.0'
+
+docker service create --replicas 3 --name vote --network=front-end  -p 8080:80 voting-app
+
+
+Docker stack :
+==============
